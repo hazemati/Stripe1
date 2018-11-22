@@ -72,32 +72,9 @@ function registerElements(elements, exampleName) {
       }
     });
   });
-
-  // Listen on the form's 'submit' handler...
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    // Trigger HTML5 validation UI on the form if any of the inputs fail
-    // validation.
-    var plainInputsValid = true;
-    Array.prototype.forEach.call(form.querySelectorAll('input'), function(
-      input
-    ) {
-      if (input.checkValidity && !input.checkValidity()) {
-        plainInputsValid = false;
-        return;
-      }
-    });
-    if (!plainInputsValid) {
-      triggerBrowserValidation();
-      return;
-    }
-
-    // Show a loading screen...
-    example.classList.add('submitting');
-
-    // Disable all inputs.
-    disableInputs();
+var form = document.getElementById('payment-form');
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
 
     // Gather additional customer data we may have collected in our form.
     var name = form.querySelector('#' + exampleName + '-name');
@@ -117,17 +94,7 @@ function registerElements(elements, exampleName) {
     // from the Element group in order to create a token. We can also pass
     // in the additional customer data we collected in our form.
     stripe.createToken(elements[0], additionalData).then(function(result) {
-      // Stop loading!
-      example.classList.remove('submitting');
-
-      if (result.token) {
-        // If we received a token, show the token ID.
-        example.classList.add('submitted');
-      } else {
-        // Otherwise, un-disable inputs.
-        enableInputs();
-      }
-          if (result.error) {
+    if (result.error) {
       // Inform the user if there was an error.
       var errorElement = document.getElementById('card-errors');
       errorElement.textContent = result.error.message;
@@ -135,8 +102,9 @@ function registerElements(elements, exampleName) {
       // Send the token to your server.
       stripeTokenHandler(result.token);
     }
-    });
   });
+});
+
 // Submit the form with the token ID.
 function stripeTokenHandler(token) {
   // Insert the token ID into the form so it gets submitted to the server
